@@ -1,5 +1,12 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
-import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useLocation,
+  useNavigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 import { fetchMovieDetails } from "../../api/Api";
 import css from "./MovieDetailsPage.module.css";
 
@@ -15,22 +22,38 @@ function MovieDetailsPage() {
   const [movie, setMovie] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getMovieDetails = async () => {
-      const movieDetails = await fetchMovieDetails(movieId);
-      setMovie(movieDetails);
+      setLoading(true);
+      try {
+        const movieDetails = await fetchMovieDetails(movieId);
+        setMovie(movieDetails);
+      } catch (error) {
+        if (error.message === "NotFound") {
+          navigate("/404");
+        } else {
+          console.error("Error fetching movie details:", error);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
     getMovieDetails();
-  }, [movieId]);
+  }, [movieId, navigate]);
 
   const handleGoBack = () => {
     navigate(location.state?.from || "/movies");
   };
 
-  if (!movie) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!movie) {
+    return null;
   }
 
   return (
@@ -74,10 +97,10 @@ function MovieDetailsPage() {
         </ul>
       </div>
 
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading cast/reviews...</div>}>
         <Routes>
-          <Route path={`/movies/:movieId/cast`} element={<MovieCast />} />
-          <Route path={`/movies/:movieId/reviews`} element={<MovieReviews />} />
+          <Route path="cast" element={<MovieCast />} />
+          <Route path="reviews" element={<MovieReviews />} />
         </Routes>
       </Suspense>
     </div>

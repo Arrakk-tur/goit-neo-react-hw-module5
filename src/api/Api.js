@@ -11,6 +11,13 @@ const options = {
   },
 };
 
+const handleApiError = (error) => {
+  if (error.response && error.response.status === 404) {
+    throw new Error("NotFound");
+  }
+  throw error;
+};
+
 export const fetchTrendingMovies = async () => {
   try {
     const response = await axios.get(
@@ -45,8 +52,7 @@ export const fetchMovieDetails = async (movieId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching movie details:", error);
-    return null;
+    handleApiError(error);
   }
 };
 
@@ -58,8 +64,7 @@ export const fetchMovieCredits = async (movieId) => {
     );
     return response.data.cast;
   } catch (error) {
-    console.error("Error fetching movie credits:", error);
-    return [];
+    handleApiError(error);
   }
 };
 
@@ -71,7 +76,6 @@ export const fetchMovieReviews = async (movieId) => {
     );
     return response.data.results;
   } catch (error) {
-    console.error("Error fetching movie reviews:", error);
-    return [];
+    handleApiError(error);
   }
 };
