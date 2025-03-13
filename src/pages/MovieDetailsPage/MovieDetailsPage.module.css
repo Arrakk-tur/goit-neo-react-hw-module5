@@ -1,6 +1,13 @@
 .container {
   padding: 20px;
 }
+button {
+  margin: 10px 0;
+}
+
+button:hover {
+  background-color: blue;
+}
 
 .movieDetails {
   display: flex;
