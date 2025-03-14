@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, Suspense, lazy, useRef } from "react";
 import {
   useParams,
   Link,
@@ -24,6 +24,8 @@ function MovieDetailsPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
+  const locationRef = useRef(location.state ?? "/movies");
+
   useEffect(() => {
     const getMovieDetails = async () => {
       setLoading(true);
@@ -45,7 +47,7 @@ function MovieDetailsPage() {
   }, [movieId, navigate]);
 
   const handleGoBack = () => {
-    navigate(location.state?.from || "/movies");
+    navigate(locationRef.current.from);
   };
 
   if (loading) {
@@ -85,14 +87,10 @@ function MovieDetailsPage() {
         <h3>Additional information</h3>
         <ul>
           <li>
-            <Link to={`/movies/${movieId}/cast`} state={{ from: location }}>
-              Cast
-            </Link>
+            <Link to={`/movies/${movieId}/cast`}>Cast</Link>
           </li>
           <li>
-            <Link to={`/movies/${movieId}/reviews`} state={{ from: location }}>
-              Reviews
-            </Link>
+            <Link to={`/movies/${movieId}/reviews`}>Reviews</Link>
           </li>
         </ul>
       </div>
