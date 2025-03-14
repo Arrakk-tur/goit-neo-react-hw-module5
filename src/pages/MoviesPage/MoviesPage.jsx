@@ -1,23 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { searchMovies } from "../../api/Api";
 import MovieList from "../../components/MovieList/MovieList";
 import css from "./MoviesPage.module.css";
 
 function MoviesPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("query") || ""
+  );
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const performSearch = async () => {
+      if (searchQuery.trim() === "") {
+        setSearchResults([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const results = await searchMovies(searchQuery);
+        setSearchResults(results);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    performSearch();
+  }, [searchQuery]);
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    if (searchQuery.trim() === "") {
-      return;
-    }
-    const results = await searchMovies(searchQuery);
-    setSearchResults(results);
+    setSearchParams({ query: searchQuery });
   };
 
   return (
@@ -34,7 +53,7 @@ function MoviesPage() {
           Search
         </button>
       </form>
-      <MovieList movies={searchResults} />
+      {loading ? <div>Loading...</div> : <MovieList movies={searchResults} />}
     </div>
   );
 }
