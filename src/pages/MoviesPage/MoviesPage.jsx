@@ -7,20 +7,19 @@ import css from "./MoviesPage.module.css";
 function MoviesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("query") || ""
-  );
   const [loading, setLoading] = useState(false);
+
+  const query = searchParams.get("query") || "";
 
   useEffect(() => {
     const performSearch = async () => {
-      if (searchQuery.trim() === "") {
+      if (!query.trim()) {
         setSearchResults([]);
         return;
       }
       setLoading(true);
       try {
-        const results = await searchMovies(searchQuery);
+        const results = await searchMovies(query);
         setSearchResults(results);
       } finally {
         setLoading(false);
@@ -28,15 +27,14 @@ function MoviesPage() {
     };
 
     performSearch();
-  }, [searchQuery]);
+  }, [searchParams]);
 
   const handleInputChange = (event) => {
-    setSearchQuery(event.target.value);
+    setSearchParams({ query: event.target.value });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setSearchParams({ query: searchQuery });
   };
 
   return (
@@ -44,12 +42,12 @@ function MoviesPage() {
       <form onSubmit={handleSubmit} className={css.form}>
         <input
           type="text"
-          value={searchQuery}
+          value={query}
           onChange={handleInputChange}
           className={css.input}
           placeholder="Search movies"
         />
-        <button type="submit" className={css.button}>
+        <button type="submit" className={css.button} disabled>
           Search
         </button>
       </form>
