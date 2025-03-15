@@ -9,7 +9,7 @@ function MoviesPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const query = searchParams.get("query") || "";
+  const query = searchParams.get("query") ?? "";
 
   useEffect(() => {
     const performSearch = async () => {
@@ -30,6 +30,7 @@ function MoviesPage() {
   }, [searchParams]);
 
   const handleInputChange = (event) => {
+    if (!event.target.value) return setSearchParams({});
     setSearchParams({ query: event.target.value });
   };
 
